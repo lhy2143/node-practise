@@ -11,8 +11,12 @@
     <script>
       function getData() {
         axios
-          .get('http://localhost:8090/getData', {
-            headers: { Authorization: 'Bearer shared-secret' },
+          .get('http://localhost:80', {
+            withCredentials: true,
+            headers: {
+              Authorization:
+                'Bearer eyJhbGciOiJIUzI1NiJ9.YWFh.ISXPwA7fun46QqhQuYVQGUswDQOe_EAITmsF2Y_xTDs',
+            },
           })
           .then((res) => {
             console.log('res,', res);
