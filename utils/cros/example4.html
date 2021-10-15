@@ -8,10 +8,62 @@
   </head>
   <body>
     <div onclick="getData()">请求</div>
+    <input type="file" id="log" />
+    <button onclick="mergeFileChunk()">合并</button>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
+      const SIZE = 10 * 1024 * 1024;
+      const CancelToken = axios.CancelToken;
+      const input = document.getElementById('log');
+
+      input.addEventListener('change', handleChange);
+      function handleChange(e) {
+        let fileChunkList = createFileChunk(e.target.files[0]);
+        console.log('fileChunkList', fileChunkList);
+        let cancel;
+        let uploadList = fileChunkList.map((item, index) => {
+          let formData = new FormData();
+          formData.append('name', index);
+
+          formData.append(`file-${index}`, item.file);
+          return axios.post('http://localhost:9999/crash', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            cancelToken: new CancelToken(function executor(c) {
+              // 1. cancel函数赋值给cancelRequest属性
+              // 从而可以通过cancelRequest执行取消请求的操作
+              item.cancel = c;
+            }),
+          });
+        });
+
+        fileChunkList.forEach((item, index) => {
+          // setTimeout(() => {
+          item.cancel(index);
+          // }, index * 100);
+        });
+
+        Promise.all(uploadList).then((res) => {
+          console.log(res);
+        });
+      }
+      function createFileChunk(file, size = SIZE) {
+        let chunkList = [];
+        let cur = 0;
+        while (cur < file.size) {
+          chunkList.push({ file: file.slice(cur, cur + size) });
+          cur += size;
+        }
+        return chunkList;
+      }
+
+      function mergeFileChunk() {
+        axios.get('http://localhost:9999/merge').then((res) => {
+          console.log('merge-res---', res);
+        });
+      }
       function getData() {
         axios
-          .get('http://localhost:80', {
+          .get('http://localhost', {
             withCredentials: true,
             headers: {
               Authorization:
@@ -23,6 +75,5 @@
           });
       }
     </script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </body>
 </html>

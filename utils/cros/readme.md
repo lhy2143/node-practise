@@ -12,3 +12,6 @@ tomatoClock/server/index.js为接口服务器
 - 当配置withCredentials=true时, 后端需配置Access-Control-Allow-Credentials
 - 当前端配置请求头时, 后端需要配置Access-Control-Allow-Headers为对应的请求头集合
 - 预检请求不做jwt验证,app.use(jwt({ secret: 'shared-secret' }).unless({ method: 'OPTIONS' }));
+
+`jwt`
+tomatoClock/server/index.js为服务器
