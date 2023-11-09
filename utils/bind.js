@@ -8,3 +8,12 @@ Function.prototype.bind2 = function (vm, ...args) {
     return func.apply(vm, [...args, ...innerArgs]);
   };
 };
+
+Function.prototype.callPolyfill = function(context, ...args) {
+	context ||= window;
+    const key = Symbol('fn');
+  context[key] = this;
+  const result = context[key](...args);
+  delete context[key];
+  return result;
+}
